@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Текстовые модели — карточки · Нейросети с нуля</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#F4F1E9;--card:#FDFCF8;--ink:#2E3028;--muted:#7D7E6E;--accent:#8B8A6C;--accent-deep:#6E6D52;--wood:#5A5C43;--sand:#E6E5D2;--cream:#F6F3E6;--line:rgba(110,109,82,.16);--shadow:0 10px 34px rgba(90,85,40,.10);--font-s:'Playfair Display',Georgia,serif;--font-b:'Inter',system-ui,sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font-b);background:var(--bg);color:var(--ink);line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  header{position:sticky;top:0;z-index:50;background:rgba(244,241,233,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+  .logo{font-family:var(--font-s);font-weight:600;font-size:1.1rem;display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none}
+  .logo .mark{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--accent),var(--accent-deep));display:inline-block}
+  .topnav{display:flex;gap:8px;flex-wrap:wrap}
+  .topnav a{display:inline-flex;align-items:center;gap:9px;padding:9px 18px;border-radius:999px;font-size:.88rem;font-weight:600;text-decoration:none;white-space:nowrap;border:1px solid transparent;transition:background .22s,color .22s,transform .22s,border-color .22s,box-shadow .22s}
+  .topnav a::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.9;flex:0 0 auto}
+  .topnav a.nav-course{color:#556438;background:rgba(110,127,78,.13);border-color:rgba(110,127,78,.28)}
+  .topnav a.nav-cards{color:#8A5F24;background:rgba(196,154,85,.16);border-color:rgba(196,154,85,.34)}
+  .topnav a.nav-works{color:#3F5B68;background:rgba(94,124,138,.13);border-color:rgba(94,124,138,.28)}
+  .topnav a.nav-course:hover{background:rgba(110,127,78,.22);transform:translateY(-1px)}
+  .topnav a.nav-cards:hover{background:rgba(196,154,85,.26);transform:translateY(-1px)}
+  .topnav a.nav-works:hover{background:rgba(94,124,138,.22);transform:translateY(-1px)}
+  .topnav a.on{color:#fff;border-color:transparent}
+  .topnav a.nav-course.on{background:linear-gradient(135deg,#7A8C57,#556438);box-shadow:0 6px 16px rgba(85,100,56,.32)}
+  .topnav a.nav-cards.on{background:linear-gradient(135deg,#CBA463,#96682F);box-shadow:0 6px 16px rgba(150,104,47,.32)}
+  .topnav a.nav-works.on{background:linear-gradient(135deg,#6B8A99,#45606D);box-shadow:0 6px 16px rgba(69,96,109,.32)}  .catbar{position:sticky;top:66px;z-index:40;background:rgba(244,241,233,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+  .catbar::-webkit-scrollbar{display:none}
+  .catbar-row{display:flex;gap:8px;padding:10px 0;min-width:max-content}
+  .catbar a{padding:8px 15px;border-radius:999px;font-size:.83rem;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid var(--line);white-space:nowrap}
+  .catbar a:hover{color:var(--ink);border-color:var(--accent)}
+  .catbar a.on{background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;border-color:transparent}
+  .level-head{background:linear-gradient(150deg,var(--accent-deep),var(--wood));color:#fff;border-radius:26px;padding:24px 30px;margin:32px 0 20px;box-shadow:var(--shadow)}
+  .level-head h1{font-family:var(--font-s);font-weight:500;font-size:1.9rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px 28px;margin-bottom:14px;box-shadow:var(--shadow);scroll-margin-top:132px}
+  .card-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .card-head h2{font-family:var(--font-s);font-weight:600;font-size:1.55rem}
+  .card-head .co{font-size:.78rem;color:var(--accent-deep);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  .card .lead{font-size:1rem;color:#43463a;margin-bottom:6px}
+  .card h3{font-family:var(--font-s);font-weight:600;font-size:1.05rem;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .card p{font-size:.96rem;color:#43463a}
+  .specs{display:flex;flex-direction:column}
+  .spec{display:grid;grid-template-columns:230px 1fr;gap:16px;padding:10px 0;border-top:1px solid var(--line);font-size:.95rem}
+  .spec:first-child{border-top:none}
+  .spec .k{color:var(--accent-deep);font-weight:600}
+  .spec .v{color:#43463a}
+  .pc{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+  .pc>div{background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+  .pc b{display:block;font-size:.86rem;color:var(--accent-deep);margin-bottom:8px}
+  .pc ul{margin:0 0 0 18px}
+  .pc li{font-size:.93rem;color:#43463a;margin-bottom:6px}
+  .soon{color:var(--muted);font-size:.93rem;font-style:italic}
+  .site{margin-left:auto;display:inline-flex;align-items:center;padding:7px 16px;border-radius:999px;font-size:.82rem;font-weight:600;color:var(--ink);text-decoration:none;border:1.4px solid var(--line);white-space:nowrap;transition:border-color .2s,transform .2s}
+  .site:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .soon-site{color:var(--muted);font-weight:500;border-style:dashed}
+  footer{padding:36px 0 60px;text-align:center;border-top:1px solid var(--line);margin-top:30px}
+  .back-course{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-size:.92rem;font-weight:600;color:var(--ink);text-decoration:none;border:1.4px solid var(--line)}
+  .back-course:hover{border-color:var(--accent)}
+  @media(max-width:760px){.spec{grid-template-columns:1fr;gap:2px}.pc{grid-template-columns:1fr}.nav{height:60px}.catbar{top:60px}.card{scroll-margin-top:122px}.level-head{padding:20px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="СОДЕРЖАНИЕ КУРСА.html"><span class="mark"></span>Нейросети · с нуля</a>
+    <nav class="topnav">
+      <a class="nav-course" href="СОДЕРЖАНИЕ КУРСА.html">Курс</a>
+      <a class="nav-cards on" href="инструменты.html">Инструменты</a>
+    </nav>
+  </div>
+</header>
+
+<nav class="catbar" aria-label="Платформы раздела">
+  <div class="wrap catbar-row">
+    <a href="#chatgpt">ChatGPT</a>
+    <a href="#claude">Claude</a>
+    <a href="#gemini">Gemini</a>
+    <a href="#copilot">Copilot</a>
+    <a href="#grok">Grok</a>
+    <a href="#perplexity">Perplexity</a>
+    <a href="#llama">Llama (Meta)</a>
+    <a href="#mistral">Mistral / Le Chat</a>
+    <a href="#deepseek">DeepSeek</a>
+    <a href="#kimi">Kimi</a>
+    <a href="#qwen">Qwen</a>
+    <a href="#doubao">Doubao (ByteDance)</a>
+    <a href="#glm">GLM / ChatGLM (Zhipu)</a>
+    <a href="#ernie">Ernie (Baidu)</a>
+    <a href="#hunyuan">Hunyuan (Tencent)</a>
+    <a href="#yandexgpt">YandexGPT / Алиса</a>
+    <a href="#gigachat">GigaChat (Сбер)</a>
+    <a href="#cotype">Cotype (MTS AI)</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="level-head">
+    <h1>Текстовые модели</h1>
+  </div>
+</div>
+
+<div class="wrap">
+  <article class="card" id="chatgpt">
+    <div class="card-head"><h2>ChatGPT</h2><span class="co">OpenAI · США</span><a class="site" href="https://chatgpt.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Самая известная универсальная платформа: в одном окне тексты, картинки, голос и поиск в интернете.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Когда не хочется выбирать платформу: написать и отредактировать текст, разобрать файл, спросить по фото, найти свежее, попросить код.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Шире всех «на всё» в одном окне и самая обжитая — много готовых настроенных помощников под конкретные задачи.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Контекстное окно</span><span class="v">до 1 050 000 токенов у старшей модели — это примерно 2 500 страниц текста</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">GPT-6 Astra — самая сильная; GPT-5.6 Sol — рабочая; есть быстрая GPT-Live</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст · файлы и документы · картинки · голос · код · поиск в интернете · работа с компьютером</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">хорошо</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн, на серверах OpenAI</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть, с лимитом сообщений — хватит попробовать и пользоваться понемногу</span></div>
+    <div class="spec"><span class="k">Подписка</span><span class="v">цену уточняем: сайт OpenAI закрыт для проверки, сверю отдельно</span></div>
+    <div class="spec"><span class="k">Цена за токены (API)</span><span class="v">платишь за объём, цена за 1 миллион токенов. GPT-6 Astra — $10 за входящие и $50 за исходящие; GPT-5.6 Sol — $4 и $20</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Нужен VPN. Для оплаты — зарубежная карта или посредник.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>одна платформа почти под всё</li>
+        <li>самая обжитая: много примеров и инструкций</li>
+        <li>понимает картинки, голос, умеет работать с компьютером</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>из России только через VPN</li>
+        <li>лимиты на бесплатном доступе</li>
+        <li>самые сильные модели — только на платной подписке</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть сайт ChatGPT, войти по почте или через Google-аккаунт и написать первый запрос.</p>
+  </article>
+
+  <article class="card" id="claude">
+    <div class="card-head"><h2>Claude</h2><span class="co">Anthropic · США</span><a class="site" href="https://claude.ai" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Спокойная и аккуратная платформа: её выбирают те, кто работает с большими текстами и документами.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Длинные документы и тексты, где важен аккуратный результат; код и небольшие сайты.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>У большинства моделей самая большая «рабочая память» — 1 миллион токенов, это целая книга за один разговор.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Контекстное окно</span><span class="v">1 000 000 токенов у Fable 5.1, Opus 5 и Sonnet 5; 200 000 у Haiku 4.5</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">Fable 5.1 — сложные рассуждения; Opus 5 — большая работа; Sonnet 5 — рабочая; Haiku 4.5 — быстрая и дешёвая</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст · длинные документы · файлы · код · сайты · проекты</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">хорошо</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн, на серверах Anthropic</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть, с лимитом сообщений</span></div>
+    <div class="spec"><span class="k">Подписка</span><span class="v">цену уточняем — сверю отдельно</span></div>
+    <div class="spec"><span class="k">Цена за токены (API)</span><span class="v">за 1 миллион токенов: Haiku 4.5 — $1 входящие и $5 исходящие; Sonnet 5 — $2 и $10; Opus 5 — $5 и $25; Fable 5.1 — $10 и $50</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Нужен VPN. Оплата — зарубежная карта или посредник.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>лучше других держит в памяти большие тексты</li>
+        <li>аккуратные, собранные ответы</li>
+        <li>сильный в коде</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>из России только через VPN</li>
+        <li>не генерирует картинки</li>
+        <li>бесплатный лимит быстро заканчивается</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть сайт Claude, войти по почте или через Google-аккаунт.</p>
+  </article>
+
+  <article class="card" id="gemini">
+    <div class="card-head"><h2>Gemini</h2><span class="co">Google · США</span><a class="site" href="https://gemini.google.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Платформа Google: понимает текст, картинки, видео, звук и PDF сразу и тесно связана с поиском Google.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Разбирать в одном окне сразу несколько видов входа — документ, фото, видео, аудио; длинные и сложные задачи, где нужен большой контекст, и поиск свежей информации.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Понимает текст, картинки, видео, звук и PDF одновременно и держит в памяти до миллиона токенов — очень длинные материалы. Плотно связана с поиском Google.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Контекстное окно</span><span class="v">1 048 576 токенов у Gemini 3.8 Flash — это примерно 2 500 страниц текста</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">Gemini 3.8 Flash — основная рабочая; Gemini 3.1 Pro — самая сильная (превью); есть более старые быстрые Flash</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст · картинки (понимание) · видео · аудио · PDF · код · поиск в интернете · работа с компьютером</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">хорошо</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн, на серверах Google</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть — приложение Gemini и бесплатный уровень Google AI Studio</span></div>
+    <div class="spec"><span class="k">Цена за токены (API)</span><span class="v">за 1 миллион токенов: Gemini 3.8 Flash — $0.75 входящие и $3.75 исходящие (до конца 2026; затем $1.50 и $7.50)</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Нужен VPN. С августа 2026 Google блокирует Gemini для пользователей из России — иногда даже с VPN. Оплата — зарубежная карта.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>понимает текст, картинки, видео, звук и PDF сразу</li>
+        <li>очень большой контекст</li>
+        <li>связана с поиском Google</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>из России доступ сложный — VPN и блокировки</li>
+        <li>подписку оплатить сложно</li>
+        <li>самые сильные модели — на платной подписке или через API</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть Gemini (сайт или приложение), войти через Google-аккаунт и написать первый запрос.</p>
+  </article>
+
+  <article class="card" id="copilot">
+    <div class="card-head"><h2>Copilot</h2><a class="site" href="https://copilot.microsoft.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="grok">
+    <div class="card-head"><h2>Grok</h2><span class="co">xAI · США</span><a class="site" href="https://grok.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Платформа xAI (Илона Маска): быстрые модели с живыми ответами и опорой на данные X.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Свежие события и обсуждения в реальном времени; быстрые ответы в прямом тоне; картинки и видео по запросу.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Прямой доступ к свежим данным X — отвечает про то, что происходит прямо сейчас, а не только про то, что было в обучении.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Контекстное окно</span><span class="v">500 000 токенов у Grok 4.6 — примерно 1 200 страниц текста</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">Grok 4.6 — самая новая и быстрая; Grok 4.5 — предыдущая; Grok 4.3 — с контекстом 1 миллион токенов</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст · картинки (понимание и генерация) · видео · голос · код · поиск по X и в интернете</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">хорошо</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн, на серверах xAI</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть, с лимитом сообщений</span></div>
+    <div class="spec"><span class="k">Цена за токены (API)</span><span class="v">за 1 миллион токенов: Grok 4.6 — $2 входящие и $6 исходящие (при запросе до 200 000 токенов)</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Нужен VPN и зарубежная карта. Напрямую из России не работает.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>свежие данные из X в реальном времени</li>
+        <li>быстрые модели, генерация картинок и видео</li>
+        <li>прямой тон, без «сглаженных» ответов</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>из России только через VPN и зарубежную карту</li>
+        <li>бесплатный лимит ограничен</li>
+        <li>подписка дорогая</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть Grok, войти (можно через аккаунт X или Google) и написать первый запрос.</p>
+  </article>
+
+  <article class="card" id="perplexity">
+    <div class="card-head"><h2>Perplexity</h2><a class="site" href="https://www.perplexity.ai" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="llama">
+    <div class="card-head"><h2>Llama (Meta)</h2><a class="site" href="https://www.llama.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="mistral">
+    <div class="card-head"><h2>Mistral / Le Chat</h2><a class="site" href="https://chat.mistral.ai" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="deepseek">
+    <div class="card-head"><h2>DeepSeek</h2><span class="co">DeepSeek · Китай</span><a class="site" href="https://chat.deepseek.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Китайская платформа, известная одними из самых низких цен за токены и открытыми весами моделей.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Большие объёмы текста и код через API, когда важен результат за минимум денег; бесплатный веб-чат для повседневных задач.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Одни из самых низких цен за токены на рынке. Веса моделей открыты — их можно скачать и запустить самому.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Контекстное окно</span><span class="v">1 000 000 токенов — примерно 2 500 страниц текста</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">DeepSeek-V4.1 Flash — быстрая и дешёвая, понимает картинки; DeepSeek-V4 Pro — основная для сложных задач</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст · код · картинки (только у Flash) · файлы · рассуждения</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">хорошо</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн; веса открыты — можно запустить локально</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть — веб-чат бесплатный</span></div>
+    <div class="spec"><span class="k">Цена за токены (API)</span><span class="v">за 1 миллион токенов, вне пиковых часов: Flash — $0.15 входящие и $0.60 исходящие; V4 Pro — $0.66 и $1.98. В пиковые часы вдвое дороже</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Нужен VPN — с мая 2026 без VPN не открывается. Бесплатный чат работает; пополнение API-баланса — зарубежной картой.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>одни из самых низких цен за токены</li>
+        <li>открытые веса — можно запустить самому</li>
+        <li>бесплатный веб-чат</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>из России нужен VPN</li>
+        <li>оплата API — зарубежной картой</li>
+        <li>интерфейс и поддержка — на английском и китайском</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть DeepSeek, войти и написать первый запрос; для API — получить ключ на платформе.</p>
+  </article>
+
+  <article class="card" id="kimi">
+    <div class="card-head"><h2>Kimi</h2><span class="co">Moonshot AI · Китай</span><a class="site" href="https://www.kimi.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Китайская платформа Moonshot AI: сильна в коде, длинных текстах и рассуждениях, флагман K3 — открытая модель.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Программирование, длинные документы, глубокие рассуждения и исследовательская работа; бесплатный чат с большим контекстом.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Флагман Kimi K3 — 2,8 триллиона параметров и 1 миллион токенов контекста, веса открыты. Одна из сильнейших открытых моделей.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Контекстное окно</span><span class="v">1 048 576 токенов у Kimi K3 — примерно 2 500 страниц; у K2.6 и K2.7 Code — 262 144</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">Kimi K3 — флагман (рассуждения, картинки); K2.7 Code — для кода; K2.6 — текст и картинки</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст · код · картинки (понимание) · видео (понимание) · файлы · рассуждения</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">хорошо</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн; веса K3 открыты — можно запустить самому</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть — веб-чат бесплатный</span></div>
+    <div class="spec"><span class="k">Цена за токены (API)</span><span class="v">за 1 миллион токенов: Kimi K3 — $3 входящие и $15 исходящие; K2.6 — $0.95 и $4</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Бесплатный веб-чат работает. Подписку и API оплатить из России сложно — нужна зарубежная карта.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>огромный контекст и сильные рассуждения</li>
+        <li>открытые веса флагманской модели</li>
+        <li>бесплатный веб-чат</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>платную часть из России оплатить сложно</li>
+        <li>интерфейс и поддержка — на английском и китайском</li>
+        <li>API дороже, чем у DeepSeek</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть kimi.com, войти и написать первый запрос.</p>
+  </article>
+
+  <article class="card" id="qwen">
+    <div class="card-head"><h2>Qwen</h2><a class="site" href="https://chat.qwen.ai" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="doubao">
+    <div class="card-head"><h2>Doubao (ByteDance)</h2><a class="site" href="https://www.doubao.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="glm">
+    <div class="card-head"><h2>GLM / ChatGLM (Zhipu)</h2><a class="site" href="https://chatglm.cn" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="ernie">
+    <div class="card-head"><h2>Ernie (Baidu)</h2><a class="site" href="https://yiyan.baidu.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="hunyuan">
+    <div class="card-head"><h2>Hunyuan (Tencent)</h2><a class="site" href="https://hunyuan.tencent.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="yandexgpt">
+    <div class="card-head"><h2>YandexGPT / Алиса</h2><a class="site" href="https://alice.yandex.ru" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="gigachat">
+    <div class="card-head"><h2>GigaChat</h2><span class="co">Сбер · Россия</span><a class="site" href="https://gigachat.ru" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Российская платформа от Сбера: работает по-русски и открывается напрямую, без VPN.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Русскоязычные тексты и документы; задачи, где важна доступность без VPN и оплата российской картой.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Открывается напрямую, принимает российскую карту и даёт очень щедрый бесплатный запас токенов. Понимает не только текст, но и картинки с аудио.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Контекстное окно</span><span class="v">128 000 токенов у моделей Pro и Max — примерно 300 страниц текста</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">GigaChat 2 Lite, 2 Pro, 2 Max и старшая GigaChat 3 Ultra</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст · документы · картинки · распознавание изображений и аудио</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">отлично — платформа сделана под русский</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн, на серверах Сбера</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">очень большой: 365 000 000 токенов бесплатно — 250 млн на Lite, 40 млн на Pro, 25 млн на Max, 50 млн на Ultra</span></div>
+    <div class="spec"><span class="k">Подписка</span><span class="v">есть платные тарифы; цены в рублях — сверю отдельно</span></div>
+    <div class="spec"><span class="k">Цена за токены (пакеты)</span><span class="v">20 000 000 токенов Lite — 1 300 ₽; 3 000 000 токенов Pro — 1 500 ₽; 3 000 000 токенов Max — 1 950 ₽</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Да, работает напрямую, без VPN. Оплата российской картой.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>без VPN и с оплатой российской картой</li>
+        <li>очень щедрый бесплатный запас токенов</li>
+        <li>отличный русский язык, понимает картинки</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>в сложных задачах слабее топовых зарубежных моделей</li>
+        <li>пакеты токенов ограничены по объёму</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть GigaChat (сайт или приложение) и написать первый запрос.</p>
+  </article>
+
+  <article class="card" id="cotype">
+    <div class="card-head"><h2>Cotype (MTS AI)</h2><a class="site" href="https://cotype.ru" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <a class="back-course" href="инструменты.html">← Ко всем инструментам</a>
+  </div>
+</footer>
+
+<script>
+  const cats=[...document.querySelectorAll('.catbar a')];
+  const mods=cats.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const setOn=el=>{cats.forEach(a=>a.classList.remove('on'));if(el)el.classList.add('on');};
+  const spy=()=>{let cur=mods[0];mods.forEach(m=>{if(m.getBoundingClientRect().top<=140)cur=m;});setOn(cats.find(a=>a.getAttribute('href')==='#'+cur.id));};
+  window.addEventListener('scroll',spy,{passive:true});spy();
+</script>
+</body>
+</html>

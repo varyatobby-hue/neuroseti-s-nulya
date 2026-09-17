@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Видео, аватары, монтаж — карточки · Нейросети с нуля</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#F4F1E9;--card:#FDFCF8;--ink:#2E3028;--muted:#7D7E6E;--accent:#8B8A6C;--accent-deep:#6E6D52;--wood:#5A5C43;--sand:#E6E5D2;--cream:#F6F3E6;--line:rgba(110,109,82,.16);--shadow:0 10px 34px rgba(90,85,40,.10);--font-s:'Playfair Display',Georgia,serif;--font-b:'Inter',system-ui,sans-serif}
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font-b);background:var(--bg);color:var(--ink);line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  header{position:sticky;top:0;z-index:50;background:rgba(244,241,233,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+  .logo{font-family:var(--font-s);font-weight:600;font-size:1.1rem;display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none}
+  .logo .mark{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--accent),var(--accent-deep));display:inline-block}
+  .topnav{display:flex;gap:8px;flex-wrap:wrap}
+  .topnav a{display:inline-flex;align-items:center;gap:9px;padding:9px 18px;border-radius:999px;font-size:.88rem;font-weight:600;text-decoration:none;white-space:nowrap;border:1px solid transparent;transition:background .22s,color .22s,transform .22s,border-color .22s,box-shadow .22s}
+  .topnav a::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.9;flex:0 0 auto}
+  .topnav a.nav-course{color:#556438;background:rgba(110,127,78,.13);border-color:rgba(110,127,78,.28)}
+  .topnav a.nav-cards{color:#8A5F24;background:rgba(196,154,85,.16);border-color:rgba(196,154,85,.34)}
+  .topnav a.nav-works{color:#3F5B68;background:rgba(94,124,138,.13);border-color:rgba(94,124,138,.28)}
+  .topnav a.nav-course:hover{background:rgba(110,127,78,.22);transform:translateY(-1px)}
+  .topnav a.nav-cards:hover{background:rgba(196,154,85,.26);transform:translateY(-1px)}
+  .topnav a.nav-works:hover{background:rgba(94,124,138,.22);transform:translateY(-1px)}
+  .topnav a.on{color:#fff;border-color:transparent}
+  .topnav a.nav-course.on{background:linear-gradient(135deg,#7A8C57,#556438);box-shadow:0 6px 16px rgba(85,100,56,.32)}
+  .topnav a.nav-cards.on{background:linear-gradient(135deg,#CBA463,#96682F);box-shadow:0 6px 16px rgba(150,104,47,.32)}
+  .topnav a.nav-works.on{background:linear-gradient(135deg,#6B8A99,#45606D);box-shadow:0 6px 16px rgba(69,96,109,.32)}  .catbar{position:sticky;top:66px;z-index:40;background:rgba(244,241,233,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+  .catbar::-webkit-scrollbar{display:none}
+  .catbar-row{display:flex;gap:8px;padding:10px 0;min-width:max-content}
+  .catbar a{padding:8px 15px;border-radius:999px;font-size:.83rem;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid var(--line);white-space:nowrap}
+  .catbar a:hover{color:var(--ink);border-color:var(--accent)}
+  .catbar a.on{background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;border-color:transparent}
+  .level-head{background:linear-gradient(150deg,var(--accent-deep),var(--wood));color:#fff;border-radius:26px;padding:24px 30px;margin:32px 0 20px;box-shadow:var(--shadow)}
+  .level-head h1{font-family:var(--font-s);font-weight:500;font-size:1.9rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px 28px;margin-bottom:14px;box-shadow:var(--shadow);scroll-margin-top:132px}
+  .card-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .card-head h2{font-family:var(--font-s);font-weight:600;font-size:1.55rem}
+  .card-head .co{font-size:.78rem;color:var(--accent-deep);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  .card .lead{font-size:1rem;color:#43463a;margin-bottom:6px}
+  .card h3{font-family:var(--font-s);font-weight:600;font-size:1.05rem;margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .card p{font-size:.96rem;color:#43463a}
+  .specs{display:flex;flex-direction:column}
+  .spec{display:grid;grid-template-columns:230px 1fr;gap:16px;padding:10px 0;border-top:1px solid var(--line);font-size:.95rem}
+  .spec:first-child{border-top:none}
+  .spec .k{color:var(--accent-deep);font-weight:600}
+  .spec .v{color:#43463a}
+  .pc{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+  .pc>div{background:var(--cream);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+  .pc b{display:block;font-size:.86rem;color:var(--accent-deep);margin-bottom:8px}
+  .pc ul{margin:0 0 0 18px}
+  .pc li{font-size:.93rem;color:#43463a;margin-bottom:6px}
+  .soon{color:var(--muted);font-size:.93rem;font-style:italic}
+  .site{margin-left:auto;display:inline-flex;align-items:center;padding:7px 16px;border-radius:999px;font-size:.82rem;font-weight:600;color:var(--ink);text-decoration:none;border:1.4px solid var(--line);white-space:nowrap;transition:border-color .2s,transform .2s}
+  .site:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .soon-site{color:var(--muted);font-weight:500;border-style:dashed}
+  footer{padding:36px 0 60px;text-align:center;border-top:1px solid var(--line);margin-top:30px}
+  .back-course{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-size:.92rem;font-weight:600;color:var(--ink);text-decoration:none;border:1.4px solid var(--line)}
+  .back-course:hover{border-color:var(--accent)}
+  @media(max-width:760px){.spec{grid-template-columns:1fr;gap:2px}.pc{grid-template-columns:1fr}.nav{height:60px}.catbar{top:60px}.card{scroll-margin-top:122px}.level-head{padding:20px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="СОДЕРЖАНИЕ КУРСА.html"><span class="mark"></span>Нейросети · с нуля</a>
+    <nav class="topnav">
+      <a class="nav-course" href="СОДЕРЖАНИЕ КУРСА.html">Курс</a>
+      <a class="nav-cards on" href="инструменты.html">Инструменты</a>
+    </nav>
+  </div>
+</header>
+
+<nav class="catbar" aria-label="Платформы раздела">
+  <div class="wrap catbar-row">
+    <a href="#veo">Veo (Google)</a>
+    <a href="#runway">Runway</a>
+    <a href="#pika">Pika</a>
+    <a href="#luma">Luma Dream Machine</a>
+    <a href="#ltx">LTX Studio</a>
+    <a href="#heygen">HeyGen</a>
+    <a href="#synthesia">Synthesia</a>
+    <a href="#did">D-ID</a>
+    <a href="#higgsfield">Higgsfield</a>
+    <a href="#vozo">Vozo</a>
+    <a href="#kling">Kling</a>
+    <a href="#hailuo">Hailuo / MiniMax</a>
+    <a href="#seedance">Seedance (ByteDance)</a>
+    <a href="#wan">Wan (Alibaba)</a>
+    <a href="#vidu">Vidu</a>
+    <a href="#hunyuan-video">Hunyuan Video</a>
+    <a href="#pixverse">PixVerse</a>
+    <a href="#capcut">CapCut / Dreamina</a>
+    <a href="#davinci">DaVinci Resolve</a>
+    <a href="#descript">Descript</a>
+    <a href="#opusclip">Opus Clip</a>
+    <a href="#invideo">InVideo</a>
+    <a href="#pictory">Pictory</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="level-head">
+    <h1>Видео, аватары, монтаж</h1>
+  </div>
+</div>
+
+<div class="wrap">
+  <article class="card" id="veo">
+    <div class="card-head"><h2>Veo (Google)</h2><span class="co">Google DeepMind · США</span><a class="site" href="https://labs.google/flow" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Видео-модель Google: генерирует короткие кинематографичные ролики сразу со звуком — голосом, шумами, музыкой.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Короткие ролики со звуком: реклама, заставки, сцены, где важен реалистичный звук и физика движения.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Делает звук и видео вместе, «в одной упаковке»: диалоги, шумы, атмосферу. Сильна в реализме и физике движения.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Длительность ролика</span><span class="v">короткие ролики — несколько секунд за генерацию; их можно продлевать</span></div>
+    <div class="spec"><span class="k">Разрешение</span><span class="v">1080p и 4K</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">Veo 3.1 — основная; есть бюджетная Veo 3.1 Lite</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст → видео · картинка → видео · звук и голос · продление сцен · образцы-картинки для управления</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">понимает русские запросы</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн, на серверах Google</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть: в Google Flow бесплатные генерации с лимитом</span></div>
+    <div class="spec"><span class="k">Подписка</span><span class="v">через подписку Google AI Pro / Ultra</span></div>
+    <div class="spec"><span class="k">Цена за генерации (API)</span><span class="v">через Gemini API, оплата за секунду видео</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Нужен VPN. Оплата — зарубежная карта.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>звук и видео в одном ролике</li>
+        <li>реализм и физика движения</li>
+        <li>разрешение до 4K</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>из России только через VPN</li>
+        <li>короткие ролики</li>
+        <li>нужна подписка Google для полного доступа</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть Google Flow, войти в Google-аккаунт и сделать первую бесплатную генерацию.</p>
+  </article>
+
+  <article class="card" id="runway">
+    <div class="card-head"><h2>Runway</h2><span class="co">Runway AI · США</span><a class="site" href="https://runwayml.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Студия для видео и картинок: генерация роликов, изображений, монтаж и эффекты в одном месте.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Полный цикл работы с видео: сгенерировать, подправить, смонтировать. Хороша для черновиков и экспериментов.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Не только генератор, а целая студия: много инструментов и моделей в одном месте, включая сторонние (Kling, Seedance, Nano Banana).</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Длительность ролика</span><span class="v">короткие ролики — несколько секунд за генерацию</span></div>
+    <div class="spec"><span class="k">Разрешение</span><span class="v">до 1080p; на старших тарифах — увеличение до 4K</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">Gen-4.5 — сильная; Gen-4 Turbo — быстрая и дешёвая; Gen-4 — рабочая; также Kling 3.0, Seedance, Nano Banana</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст → видео · картинка → видео · видео → видео · изображения · монтаж и эффекты</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">понимает русские запросы</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть: 125 кредитов один раз на пробу</span></div>
+    <div class="spec"><span class="k">Подписка</span><span class="v">Standard — $12/мес (625 кредитов); Pro — $28/мес (2 250 кредитов); Max — $76/мес (9 500 кредитов)</span></div>
+    <div class="spec"><span class="k">Цена за генерации (кредиты)</span><span class="v">Gen-4.5 — 12 кредитов за секунду; Gen-4 Turbo — 6 кредитов за секунду; картинка Gen-4 — 8 кредитов</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Нужен VPN. Оплата — зарубежная карта.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>много инструментов в одном месте</li>
+        <li>бесплатный старт — 125 кредитов</li>
+        <li>доступ к разным моделям сразу</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>из России через VPN</li>
+        <li>кредиты тратятся быстро</li>
+        <li>много функций — сложнее освоить</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть сайт Runway, завести аккаунт и потратить бесплатные 125 кредитов на первый ролик.</p>
+  </article>
+
+  <article class="card" id="pika">
+    <div class="card-head"><h2>Pika</h2><span class="co">Pika Labs · США</span><a class="site" href="https://pika.art" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Платформа для коротких эффектных видео: спецэффекты, «оживление» фото и тренды для соцсетей.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Короткие вирусные ролики, превращение фото в видео, эффекты — контент для соцсетей.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Ставка на эффекты и вирусность: Pikaffects (сжатие, плавление, «торт»), Pikascenes, тренды. Проще и «игровее», чем студийные инструменты.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Длительность ролика</span><span class="v">5–10 секунд; режим Pikaframes — до 25 секунд</span></div>
+    <div class="spec"><span class="k">Разрешение</span><span class="v">до 1080p</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">Pika 2.5 Turbo — быстрая; Pika 2.5 Pro — качественнее</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст → видео · картинка → видео · видео → видео · спецэффекты · аватары</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">понимает русские запросы</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть: тариф Free — 80 кредитов в месяц</span></div>
+    <div class="spec"><span class="k">Подписка</span><span class="v">от $8/мес (700 кредитов) до $76/мес (6 000 кредитов); средний тариф — $28/мес (2 300 кредитов)</span></div>
+    <div class="spec"><span class="k">Цена за генерации (кредиты)</span><span class="v">ролик 5–10 секунд: от 12 кредитов (480p) до 80 кредитов (1080p)</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Нужен VPN. Оплата — зарубежная карта.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>просто и быстро</li>
+        <li>эффекты для соцсетей</li>
+        <li>щедрый бесплатный тариф</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>короткие ролики</li>
+        <li>из России через VPN</li>
+        <li>заточена под тренды, а не кино</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть pika.art, завести аккаунт и попробовать эффект Pikaffects на своём фото.</p>
+  </article>
+
+  <article class="card" id="luma">
+    <div class="card-head"><h2>Luma Dream Machine</h2><a class="site" href="https://lumalabs.ai/dream-machine" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="ltx">
+    <div class="card-head"><h2>LTX Studio</h2><a class="site" href="https://ltx.studio" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="heygen">
+    <div class="card-head"><h2>HeyGen</h2><a class="site" href="https://www.heygen.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="synthesia">
+    <div class="card-head"><h2>Synthesia</h2><a class="site" href="https://www.synthesia.io" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="did">
+    <div class="card-head"><h2>D-ID</h2><a class="site" href="https://www.d-id.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="higgsfield">
+    <div class="card-head"><h2>Higgsfield</h2><a class="site" href="https://higgsfield.ai" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="vozo">
+    <div class="card-head"><h2>Vozo</h2><a class="site" href="https://www.vozo.ai" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="kling">
+    <div class="card-head"><h2>Kling</h2><span class="co">Kuaishou · Китай</span><a class="site" href="https://klingai.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="lead">Видео-генератор китайской компании Kuaishou: одна из сильнейших платформ по качеству, с настоящим 4K и звуком.</p>
+
+    <h3>Для чего лучше всего</h3>
+    <p>Реалистичные ролики, 4K-видео, сцены с персонажами и голосом — когда важно качество картинки.</p>
+
+    <h3>Чем отличается от похожих</h3>
+    <p>Среди первых даёт «настоящее» 4K-видео и звук прямо в модели. Сильна в реализме и управлении движением.</p>
+
+    <h3>Характеристики</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Длительность ролика</span><span class="v">несколько секунд за генерацию; длиннее собирается из нескольких кадров (режим Multi-Shot)</span></div>
+    <div class="spec"><span class="k">Разрешение</span><span class="v">до 4K (нативно)</span></div>
+    <div class="spec"><span class="k">Версии моделей</span><span class="v">Kling 3.0: VIDEO 3.0 · VIDEO 3.0 Omni (со звуком) · IMAGE 3.0</span></div>
+    <div class="spec"><span class="k">Что умеет</span><span class="v">текст → видео · картинка → видео · звук и голос · управление движением · аватары · изображения</span></div>
+    <div class="spec"><span class="k">Русский язык</span><span class="v">понимает русские запросы; интерфейс — английский и китайский</span></div>
+    <div class="spec"><span class="k">Онлайн или локально</span><span class="v">онлайн</span></div>
+    </div>
+
+    <h3>Цена</h3>
+    <div class="specs">
+    <div class="spec"><span class="k">Бесплатный вход</span><span class="v">есть: тариф Basic без ежемесячных кредитов (30 генераций, без коммерческого использования)</span></div>
+    <div class="spec"><span class="k">Подписка</span><span class="v">Standard — $6,99/мес первый месяц, дальше $8,8 (660 кредитов); Pro — $25,99, дальше $32,56 (3 000 кредитов); Premier — $64,99 (8 000); Ultra — $127,99 (26 000)</span></div>
+    <div class="spec"><span class="k">Цена за генерации (кредиты)</span><span class="v">ролик 720p — около 20 кредитов; 1080p дороже; 4K — 30 кредитов за секунду</span></div>
+    </div>
+
+    <h3>Доступность из России</h3>
+    <p>Сайт открывается напрямую, VPN обычно не нужен. Оплата — зарубежная карта или через магазины приложений.</p>
+
+    <h3>Плюсы и минусы</h3>
+    <div class="pc">
+      <div><b>Плюсы</b><ul>
+        <li>качество картинки и настоящее 4K</li>
+        <li>звук и голос в ролике</li>
+        <li>недорогой старт</li>
+      </ul></div>
+      <div><b>Минусы</b><ul>
+        <li>оплата из России непростая</li>
+        <li>интерфейс не на русском</li>
+        <li>правила и поддержка на английском и китайском</li>
+      </ul></div>
+    </div>
+
+    <h3>Первый шаг</h3>
+    <p>Открыть сайт Kling, завести аккаунт и сделать первый бесплатный ролик на тарифе Basic.</p>
+  </article>
+
+  <article class="card" id="hailuo">
+    <div class="card-head"><h2>Hailuo / MiniMax</h2><a class="site" href="https://hailuoai.video" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="seedance">
+    <div class="card-head"><h2>Seedance (ByteDance)</h2><a class="site" href="https://jimeng.jianying.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="wan">
+    <div class="card-head"><h2>Wan (Alibaba)</h2><a class="site" href="https://wan.video" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="vidu">
+    <div class="card-head"><h2>Vidu</h2><a class="site" href="https://www.vidu.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="hunyuan-video">
+    <div class="card-head"><h2>Hunyuan Video</h2><a class="site" href="https://hunyuan.tencent.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="pixverse">
+    <div class="card-head"><h2>PixVerse</h2><a class="site" href="https://pixverse.ai" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="capcut">
+    <div class="card-head"><h2>CapCut / Dreamina</h2><a class="site" href="https://www.capcut.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="davinci">
+    <div class="card-head"><h2>DaVinci Resolve</h2><a class="site" href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="descript">
+    <div class="card-head"><h2>Descript</h2><a class="site" href="https://www.descript.com" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="opusclip">
+    <div class="card-head"><h2>Opus Clip</h2><a class="site" href="https://www.opus.pro" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="invideo">
+    <div class="card-head"><h2>InVideo</h2><a class="site" href="https://invideo.io" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+
+  <article class="card" id="pictory">
+    <div class="card-head"><h2>Pictory</h2><a class="site" href="https://pictory.ai" target="_blank" rel="noopener">Открыть сайт →</a></div>
+    <p class="soon">Карточка готовится.</p>
+  </article>
+</div>
+
+<footer>
+  <div class="wrap">
+    <a class="back-course" href="инструменты.html">← Ко всем инструментам</a>
+  </div>
+</footer>
+
+<script>
+  const cats=[...document.querySelectorAll('.catbar a')];
+  const mods=cats.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const setOn=el=>{cats.forEach(a=>a.classList.remove('on'));if(el)el.classList.add('on');};
+  const spy=()=>{let cur=mods[0];mods.forEach(m=>{if(m.getBoundingClientRect().top<=140)cur=m;});setOn(cats.find(a=>a.getAttribute('href')==='#'+cur.id));};
+  window.addEventListener('scroll',spy,{passive:true});spy();
+</script>
+</body>
+</html>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Нейросети с нуля — понятным языком</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F1E9; --bg-2:#ECEADF; --card:#FDFCF8; --ink:#2E3028; --muted:#7D7E6E;
+    --accent:#8B8A6C; --accent-deep:#6E6D52; --wood:#5A5C43; --sand:#E6E5D2; --cream:#F6F3E6;
+    --line:rgba(110,109,82,.16); --radius:26px;
+    --shadow:0 10px 34px rgba(90,85,40,.10); --shadow-hover:0 24px 60px rgba(110,105,40,.20);
+    --font-s:'Playfair Display',Georgia,serif; --font-b:'Inter',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font-b);background:var(--bg);color:var(--ink);line-height:1.72;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  ::selection{background:#d7d8bc;color:#3a3c2c}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(244,241,233,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .logo{font-family:var(--font-s);font-weight:600;font-size:1.2rem;letter-spacing:.02em;display:flex;align-items:center;gap:10px}
+  .logo .mark{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--accent),var(--accent-deep));display:inline-block;box-shadow:0 4px 12px rgba(110,109,82,.35)}
+  .nav-links{display:flex;gap:30px;align-items:center}
+  .nav-links a{color:var(--muted);text-decoration:none;font-size:.92rem;font-weight:500;transition:color .25s}
+  .nav-links a:hover{color:var(--ink)}
+  .burger{display:none;background:none;border:none;font-size:1.6rem;color:var(--ink);cursor:pointer}
+
+  .modules{position:sticky;top:70px;z-index:40;background:rgba(244,241,233,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+  .modules::-webkit-scrollbar{display:none}
+  .modules-row{display:flex;gap:8px;padding:10px 0;min-width:max-content}
+  .mod{display:inline-flex;align-items:center;padding:8px 16px;border-radius:999px;font-size:.85rem;font-weight:600;color:var(--muted);text-decoration:none;white-space:nowrap;border:1px solid transparent;transition:background .25s,color .25s,border-color .25s;cursor:pointer}
+  .mod:hover{color:var(--ink);border-color:var(--line)}
+  .mod.active{background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;box-shadow:0 6px 16px rgba(110,109,82,.28)}
+
+  .hero{position:relative;padding:104px 0 84px;overflow:hidden}
+  .blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.55;pointer-events:none}
+  .b1{width:520px;height:520px;background:#E2E1CC;top:-160px;right:-80px;animation:drift 16s ease-in-out infinite}
+  .b2{width:400px;height:400px;background:#DCDDC6;bottom:-160px;left:-100px;animation:drift 20s ease-in-out infinite reverse}
+  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(26px,-22px)}}
+  .hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .kicker{display:inline-flex;align-items:center;gap:10px;font-size:.78rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:22px}
+  .kicker::before{content:"";width:34px;height:1px;background:var(--accent-deep);opacity:.5}
+  h1{font-family:var(--font-s);font-weight:500;font-size:3.5rem;line-height:1.06;letter-spacing:-.01em;margin-bottom:24px}
+  h1 em{font-style:italic;color:var(--accent-deep)}
+  .hero-sub{font-size:1.1rem;color:var(--muted);max-width:47ch;margin-bottom:36px}
+  .hero-visual{position:relative}
+  .mood{background:linear-gradient(155deg,var(--cream),#EDECDA 55%,#E9E8D4);border-radius:34px;padding:52px 40px;min-height:430px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .mood::after{content:"";position:absolute;inset:12px;border:1px solid rgba(110,109,82,.14);border-radius:24px;pointer-events:none}
+  .brain{width:120px;height:120px;border-radius:50%;margin-bottom:24px;background:radial-gradient(circle at 32% 28%,var(--accent),var(--accent-deep));display:grid;place-items:center;color:#fff;position:relative;box-shadow:0 18px 42px rgba(110,109,82,.4);animation:float 5s ease-in-out infinite}
+  .brain span{font-size:2.6rem}
+  .mood .mini-title{font-family:var(--font-s);font-size:1.35rem;font-weight:500;margin-bottom:12px}
+  .mood p{font-size:.95rem;color:#7e7f6a;max-width:30ch}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
+
+  section{padding:78px 0}
+  .sec-head{max-width:620px;margin:0 auto 48px;text-align:center}
+  .tag{display:inline-block;font-size:.74rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:16px}
+  h2{font-family:var(--font-s);font-weight:500;font-size:2.5rem;line-height:1.12;letter-spacing:-.01em;margin-bottom:16px}
+  .sec-head p{color:var(--muted);font-size:1.04rem}
+
+  .lesson{background:var(--bg-2)}
+  .block{background:var(--card);border-radius:30px;padding:40px;box-shadow:var(--shadow);border:1px solid var(--line);margin-bottom:28px}
+  .block-num{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:14px;font-family:var(--font-s);font-weight:600;font-size:1.1rem;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-deep));margin-bottom:20px;box-shadow:0 8px 18px rgba(110,109,82,.26)}
+  .block h3{font-family:var(--font-s);font-size:1.6rem;font-weight:500;margin-bottom:18px;line-height:1.25}
+  .block p{font-size:1rem;color:#43463a;margin-bottom:16px}
+  .block p:last-child{margin-bottom:0}
+  .block ul,.block ol{margin:0 0 16px 20px;color:#43463a}
+  .block li{margin-bottom:9px}
+  .block li b{color:var(--ink)}
+  .analogy{background:var(--cream);border-left:3px solid var(--accent);border-radius:14px;padding:20px 24px;margin:20px 0;font-size:.98rem;color:#565848}
+  .analogy.lav{background:#EAEAD8;border-color:var(--accent-deep)}
+  .analogy.mint{background:#EAE7D4;border-color:#8B8A6C}
+  .analogy b{font-weight:700}
+  .tip{background:var(--sand);border-radius:14px;padding:20px 24px;margin:20px 0;font-size:.98rem;color:#555744}
+  .tip b{font-weight:700}
+
+  .table-wrap{overflow-x:auto;margin:22px 0;border-radius:18px;border:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse;min-width:520px}
+  th,td{padding:15px 18px;text-align:left;font-size:.92rem;border-bottom:1px solid var(--line)}
+  th{background:var(--sand);font-weight:600;font-size:.85rem;color:#6f7057;letter-spacing:.03em}
+  th:first-child{border-radius:18px 0 0 0}
+  th:last-child{border-radius:0 18px 0 0}
+  tr:last-child td{border-bottom:none}
+  td:first-child{font-weight:600}
+
+  footer{padding:52px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+  footer .wrap{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;align-items:center;text-align:center}
+  .foot-lesson{text-align:center}
+  .foot-title{font-family:var(--font-s);font-weight:500;font-size:1.5rem;color:var(--ink);margin-bottom:26px}
+  .lesson-nav{display:flex;align-items:center;justify-content:center;gap:18px}
+  .lnav{display:inline-flex;align-items:center;padding:11px 20px;border-radius:999px;font-size:.9rem;font-weight:600;color:var(--ink);text-decoration:none;border:1.4px solid var(--line);transition:border-color .25s,transform .25s;cursor:pointer}
+  .lnav:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .lnav.disabled{opacity:.4;pointer-events:none}
+  .lnav-progress{font-size:.85rem;color:var(--muted)}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.visible{opacity:1;transform:none}
+
+  /* тёмный блок */
+  .block.dark{background:linear-gradient(150deg,var(--accent-deep),var(--wood));border-color:transparent}
+  .block.dark h3{color:#fff}
+  .block.dark p{color:rgba(255,255,255,.92)}
+  .block.dark ul,.block.dark ol{color:rgba(255,255,255,.92)}
+  .block.dark li b{color:#fff}
+  .block.dark .block-num{background:rgba(255,255,255,.16);box-shadow:none}
+  .block.dark .analogy{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.4);color:#fff}
+  .block.dark .analogy b{color:#fff}
+
+  /* список моделей в столбик */
+  .mlist{display:flex;flex-direction:column;gap:12px;margin:16px 0}
+  .mitem{display:flex;flex-direction:column;gap:4px;padding:14px 18px;border-radius:14px;background:var(--cream);border:1px solid var(--line)}
+  .block.dark .mitem{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18)}
+  .mitem .mname{font-weight:700;color:var(--ink)}
+  .block.dark .mitem .mname{color:#fff}
+  .mitem .mdesc{font-size:.93rem;color:var(--muted)}
+  .block.dark .mitem .mdesc{color:rgba(255,255,255,.85)}
+  .goto{color:var(--accent-deep);font-weight:600;text-decoration:none;border-bottom:1px solid rgba(110,109,82,.4);cursor:pointer}
+  .block.dark .goto{color:#fff;border-bottom-color:rgba(255,255,255,.5)}
+
+  @media(max-width:992px){
+    h1{font-size:2.7rem}
+    .hero-inner{grid-template-columns:1fr;gap:44px;text-align:center}
+    .hero-sub{margin-left:auto;margin-right:auto}
+    .kicker{justify-content:center}
+    .kicker::before{display:none}
+    .hero-visual{order:-1}
+    .nav-links{display:none}
+    .nav-links.show{display:flex;flex-direction:column;position:absolute;top:70px;left:0;right:0;background:var(--card);padding:22px 24px;box-shadow:var(--shadow);gap:18px;border-bottom:1px solid var(--line)}
+    .burger{display:block}
+  }
+  @media(max-width:640px){
+    h1{font-size:2.1rem}
+    h2{font-size:1.9rem}
+    section{padding:56px 0}
+    .block{padding:28px}
+    .hero{padding:64px 0}
+    .mood{min-height:340px;padding:40px 24px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="mark"></span>Нейросети · с нуля</div>
+    <nav class="nav-links">
+      <a href="#lesson">Модуль 1</a>
+    </nav>
+    <button class="burger" aria-label="Меню">☰</button>
+  </div>
+</header>
+
+<nav class="modules" aria-label="Модули курса">
+  <div class="wrap modules-row">
+    <a class="mod active" data-module="1">Модуль 1</a>
+    <a class="mod" data-module="2">Модуль 2</a>
+    <a class="mod" data-module="3">Модуль 3</a>
+    <a class="mod" data-module="4">Модуль 4</a>
+    <a class="mod" data-module="5">Модуль 5</a>
+    <a class="mod" data-module="6">Модуль 6</a>
+    <a class="mod" data-module="7">Модуль 7</a>
+    <a class="mod" data-module="8">Модуль 8</a>
+  </div>
+</nav>
+
+<section class="hero" id="start">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="wrap hero-inner">
+    <div>
+      <span class="kicker">Бесплатный курс для новичков</span>
+      <h1>Нейросети — <em>понятным</em> языком</h1>
+      <p class="hero-sub">С нуля разбираемся, что такое нейросеть, как она устроена и как с ней работать. Без сложных терминов и страха — только понимание.</p>
+    </div>
+    <div class="hero-visual">
+      <div class="mood">
+        <div class="brain"><span>✦</span></div>
+        <div class="mini-title">Что внутри курса</div>
+        <p>Как устроены нейросети, какие они бывают, чем отличаются и где их применять. Пошагово, с примерами — от первых основ до готовых инструментов под ваши задачи.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ МОДУЛЬ 1 ============ -->
+<section class="lesson" id="lesson" data-module="1">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Модуль 1 · Фундамент</span>
+      <h2>Что такое нейросеть</h2>
+      <p>Разбираемся, что это за «мозг», как он устроен и почему от того, как ты с ним говоришь, зависит всё.</p>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">01</span>
+      <h3>Что такое нейросеть</h3>
+      <p>Представь очень начитанного помощника. Он прочитал <b>миллионы книг, статей и разговоров</b> и отлично понимает, как устроен язык и как люди обычно отвечают. Но он не «живой ум» — это <b>огромная база знаний</b> внутри программы, которая научилась улавливать закономерности.</p>
+      <p>Ты задаёшь ему вопрос — и он отвечает. Но вот важное: <b>сам по себе он не знает, что именно тебе нужно.</b> Он просто собирает «правдоподобный», усреднённый ответ из всего, что знает.</p>
+      <div class="analogy"><b>Суть:</b> нейросеть — не глупая и не «злая», и не волшебная. У неё внутри огромная база. Но чтобы получить то, что тебе нужно, эту базу надо <b>направить</b> — задать ей узкий коридор, контекст и способ мышления. Иначе она ответит «вообще про всё», а не про то, что ты хотел.</div>
+      <p>Поэтому запомни важную закономерность: <b>как спросишь — такой ответ и получишь.</b> Неправильно сформулированный вопрос почти всегда даёт неправильный, «не тот» ответ. И это не «глупость» нейросети — это то, как она устроена.</p>
+      <p><b>Как правильно с ней разговаривать — разберём подробно в следующих уроках.</b> А пока запомни главное: нейросеть умная, но её нужно точно направлять.</p>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">02</span>
+      <h3>Промпт — то, как ты обращаешься к модели</h3>
+      <p><b>Промпт — это просто твой запрос к нейросети.</b> То, что ты пишешь в поле ввода. Не сложный термин, а обычный текст твоего вопроса или задания.</p>
+      <div class="analogy">Промпт — это как задание сотруднику. Если сказать «сделай что-нибудь» — получишь «что-нибудь». А если сказать «напиши письмо клиенту: вежливо, коротко, с извинением за задержку» — получишь то, что нужно.</div>
+      <p>И вот здесь коротко и по делу — главное про общение с моделью: она не угадывает, чего ты хочешь. Чем понятнее ты опишешь задачу, тем точнее ответ. Полностью эту тему (как строить запросы, чтобы получать нужное) разберём в отдельном модуле.</p>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">03</span>
+      <h3>Как нейросеть «учится» и «думает»</h3>
+      <p>Нейросеть <b>не хранит тексты дословно</b> — она не «зазубривает». Вместо этого она находит <b>закономерности</b>.</p>
+      <div class="analogy">Представь: ты варил супы тысячу раз (или варила — неважно). Теперь тебе говорят: «Собери суп из того, что есть в холодильнике». Ты не знаешь рецепта, но по опыту понимаешь: лук + морковь + бульон = вкусно. Так и нейросеть — она уловила закономерности между словами и смыслами и по ним собирает ответ.</div>
+      <p>По шагам это так:</p>
+      <ol>
+        <li><b>Ей дают «учебник»</b> — миллионы текстов, картинок, примеров (это «данные»).</li>
+        <li><b>Она учится</b> — ищет, какие слова идут после каких, что с чем связано.</li>
+        <li><b>Ты спрашиваешь</b> — она подбирает ответ по выученным закономерностям.</li>
+      </ol>
+      <p>А вот почему она ошибается: она делает <b>правдоподобный</b> ответ, но не всегда <b>правильный</b>. Не знает того, чего не было в её «учебнике», и может <b>уверенно придумать</b> несуществующий факт.</p>
+      <div class="tip"><b>«Галлюцинация»</b> — не ошибка и не «глупость». Это способ её работы: она делает вежливое предположение, а не ищет факт. Поэтому важное — цифры, факты, документы — всегда проверяй.</div>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">04</span>
+      <h3>Локальные и нелокальные нейросети</h3>
+      <p>Нейросети делятся на два больших вида: <b>нелокальные</b> (онлайн, «облачные») и <b>локальные</b> (офлайн, «на своём устройстве»).</p>
+      <div class="analogy mint"><b>Нелокальные (онлайн)</b> — работают через интернет, живут на мощных серверах. Ты просто заходишь на сайт. Примеры: ChatGPT, Claude, Gemini, YandexGPT, GigaChat, DeepSeek, Kandinsky.</div>
+      <div class="analogy lav"><b>Локальные (на своём)</b> — скачиваются и работают прямо на твоём компьютере, без интернета. Приватно, но обычно проще и требует мощного устройства.</div>
+      <div class="table-wrap">
+        <table>
+          <tr><th></th><th>Нелокальная (онлайн)</th><th>Локальная (на своём)</th></tr>
+          <tr><td>Где работает</td><td>На сервере в интернете</td><td>На твоём компьютере</td></tr>
+          <tr><td>Мощность «мозга»</td><td>Огромная, «умная»</td><td>Поменьше</td></tr>
+          <tr><td>Интернет</td><td>Нужен</td><td>Не нужен</td></tr>
+          <tr><td>Приватность</td><td>Данные уходят на сервер</td><td>Всё остаётся у тебя</td></tr>
+          <tr><td>Установка</td><td>Просто, открыл сайт</td><td>Сложнее, надо настроить</td></tr>
+          <tr><td>Цена</td><td>Часто платная</td><td>В основном бесплатно</td></tr>
+        </table>
+      </div>
+      <div class="tip"><b>Что выбрать новичку?</b> Для начала — нелокальные: они простые, мощные и доступные. Локальные — для тех, кому важна приватность или работа без интернета.</div>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">05</span>
+      <h3>Модели, платформы и агенты</h3>
+      <p>Здесь важно не путать три вещи: <b>модель</b>, <b>платформу</b> и <b>агента</b>.</p>
+      <div class="analogy mint"><b>Модель</b> — это сама нейросеть, «двигатель»: GPT, Gemini, Claude, DeepSeek, YandexGPT. Она умеет думать и отвечать. В быту её иногда называют «мозгом» — это образная аналогия.</div>
+      <div class="analogy lav"><b>Платформа</b> — это готовое приложение, куда встроена модель: ChatGPT, Gemini (приложение), GigaChat. Ты открываешь сайт и общаешься, не думая, какая модель внутри.</div>
+      <p>Простое правило: <b>модель — это «мотор», платформа — это «машина», в которую мотор поставили.</b> Одна и та же модель может стоять в разных платформах.</p>
+      <p>Например, <b>ChatGPT — это платформа</b>, а не «нейросеть». Внутри неё работает модель GPT. То, что ты видишь в ChatGPT, — возможности конкретного <b>продукта</b>, а не модели самой по себе.</p>
+      <div class="analogy"><b>Агент</b> — это модель, которой «дали руки и память». Обычная модель просто отвечает текстом. А к агенту подключены инструменты (поиск в интернете, генерация картинок, создание файлов, сайты) и память. Поэтому агент сам выполняет целую цепочку действий по твоей задаче и выдаёт готовый результат — не «ответ», а сделанное дело. Живёт агент на платформе.</div>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">06</span>
+      <h3>Что такое «контекст»</h3>
+      <p><b>Контекст — это все твои запросы в рамках одного чата, которые нейросеть помнит, когда отвечает на следующий вопрос.</b></p>
+      <div class="analogy">Представь, что в одном чате ты пишешь три сообщения подряд: «Планирую отпуск в Сочи» → «Подбери отель» → «А что с погодой?». Когда ты спрашиваешь про погоду, нейросеть помнит твои предыдущие запросы про Сочи и отпуск. Поэтому она отвечает тебе именно про погоду в Сочи — а не «про погоду вообще». Это и есть контекст.</div>
+      <p>Важно: это работает только внутри одного чата. В новом чате нейросеть твоих прошлых сообщений не помнит — контекст начинается заново.</p>
+      <p>Поэтому хороший ответ зависит не от одного вопроса, а от того, что ты написал в этом же чате раньше. Правильно заданный контекст = правильный ответ.</p>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">07</span>
+      <h3>Почему нейросеть «тупеет» в конце разговора</h3>
+      <p>Замечал: в начале нейросеть отвечает отлично, а к концу — путается, повторяется, будто «забывает», о чём речь? Это не сбой. У нейросети есть <b>предел «рабочей памяти» — «контекстное окно».</b></p>
+      <div class="analogy lav">Представь, что у неё в голове блокнот на определённое число страниц. Пока разговор короткий — всё помещается, она помнит начало. Но как только разговор разрастается, она <b>вынуждена сжимать старое, чтобы уместить новое</b> — и детали из начала постепенно теряются.</div>
+      <p>Нейросеть не «стирает память» по капризу — она <b>сжимает контекст</b>: оставляет суть и отбрасывает детали, когда подходит к своему лимиту. Поэтому чем длиннее и запутаннее разговор, тем хуже она помнит начало и тем «глупее» кажется.</p>
+      <p><b>Как с этим на самом деле работают:</b></p>
+      <ol>
+        <li><b>Один чат — одна задача.</b> Закончил дело — начни новый разговор. Если смешать несколько задач в одном чате, она начнёт путать одно с другим.</li>
+        <li><b>Переноси разговор в новый чат, когда он перегрузился.</b> Попроси её: «Подведи итог нашего диалога: что мы уже решили, какие ключевые данные и что осталось сделать — кратко, чтобы я продолжил в новом чате». Скопируй ответ в новый чат и продолжай там.</li>
+        <li><b>Следи за качеством ответов.</b> Как только видишь, что она повторяется, путается или «забывает» — это сигнал, что контекст переполнен. Не мучай дальше, а начни новый диалог.</li>
+        <li><b>Давай одно задание за раз.</b> Не проси «сделай и это, и это, и ещё вон то» одной кучей — разбей на шаги и делай по очереди.</li>
+      </ol>
+      <div class="tip"><b>Запомни:</b> у нейросети есть предел памяти. Веди один чат под одну задачу; если она начала повторяться или путаться — перенеси суть в новый чат через краткое резюме и продолжай там.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ МОДУЛЬ 2 ============ -->
+<section class="lesson" id="module2" data-module="2">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="tag">Модуль 2 · Обзор</span>
+      <h2>Какие бывают нейросети</h2>
+      <p>Общая картина: какие нейросети бывают, на какие группы делятся и чем отличаются. Подробное описание каждой — в отдельных модулях.</p>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">01</span>
+      <h3>Почему их так много и как не запутаться</h3>
+      <p>Нейросетей и платформ сегодня очень много, и с каждым месяцем становится больше. Чтобы не потеряться, всё это делят на группы <b>по тому, что нейросеть создаёт</b>:</p>
+      <div class="mlist">
+        <div class="mitem"><span class="mname">Текст</span><span class="mdesc">отвечает на вопросы, пишет, объясняет, работает с документами</span></div>
+        <div class="mitem"><span class="mname">Картинки</span><span class="mdesc">генерирует изображения по описанию</span></div>
+        <div class="mitem"><span class="mname">Видео</span><span class="mdesc">создаёт ролики по тексту или картинке</span></div>
+        <div class="mitem"><span class="mname">Звук и музыка</span><span class="mdesc">делает музыку, озвучивает текст голосом</span></div>
+        <div class="mitem"><span class="mname">Универсальные</span><span class="mdesc">платформы, где собрано сразу несколько возможностей</span></div>
+      </div>
+      <p>Главное правило: выбирать нужно не «лучшую нейросеть вообще», а <b>подходящую под твою задачу</b>.</p>
+    </div>
+
+    <div class="block reveal dark">
+      <span class="block-num">02</span>
+      <h3>Текстовые модели — те, что отвечают и пишут</h3>
+      <p>Это самая большая и популярная группа. Текстовую модель ты спрашиваешь как собеседника — и получаешь ответ текстом. Но это не просто «отвечалка»: у современных текстовых платформ много возможностей.</p>
+      <p><b>Что умеют текстовые платформы:</b></p>
+      <ul>
+        <li>писать, редактировать и переводить тексты;</li>
+        <li>объяснять сложное простыми словами;</li>
+        <li>читать загруженные файлы и документы;</li>
+        <li>искать информацию в интернете;</li>
+        <li>создавать код и сайты;</li>
+        <li>генерировать картинки (у многих уже встроено);</li>
+        <li>разговаривать голосом;</li>
+        <li>создавать своих настроенных ботов под задачи.</li>
+      </ul>
+      <p>Основные платформы — коротко:</p>
+      <div class="mlist">
+        <div class="mitem"><span class="mname">ChatGPT (OpenAI)</span><span class="mdesc">самая известная и универсальная. Пишет и редактирует тексты, объясняет сложное, читает файлы, ищет в интернете, генерирует картинки, разговаривает голосом, пишет код. Преимущество: всё в одной платформе — для большинства задач хватает её одной.</span></div>
+        <div class="mitem"><span class="mname">Claude (Anthropic)</span><span class="mdesc">любимец тех, кто работает серьёзно. Берёт качеством: пишет чистый код, глубоко разбирает длинные тексты и документы, создаёт аккуратные сайты. Преимущество: не «распыляется», а делает глубоко и точно — поэтому его выбирают для сложной работы.</span></div>
+        <div class="mitem"><span class="mname">Gemini (Google)</span><span class="mdesc">плотно встроена в экосистему Google. Пишет тексты, генерирует картинки, работает с документами и поиском. Преимущество: связь с Gmail, Документами и Таблицами — удобно, если живёшь в сервисах Google.</span></div>
+        <div class="mitem"><span class="mname">Kimi (Moonshot)</span><span class="mdesc">преимущество — гигантский контекст: за один раз можно загрузить огромный документ или целую книгу, и модель будет помнить всё это в диалоге. Умеет читать файлы, писать тексты и запускать агентов, которые выполняют задачу сами.</span></div>
+        <div class="mitem"><span class="mname">DeepSeek</span><span class="mdesc">мощная модель при очень низкой цене (есть бесплатный доступ). Пишет тексты, объясняет, пишет код и простые сайты. Преимущество: сила, сравнимая с лидерами, но почти бесплатно. Минус: в сложных творческих задачах может уступать платным конкурентам.</span></div>
+        <div class="mitem"><span class="mname">GigaChat (Сбер)</span><span class="mdesc">российская. Пишет тексты, генерирует картинки, хорошо работает по-русски. Преимущество: доступна из России без VPN, картинки встроены прямо в чат.</span></div>
+        <div class="mitem"><span class="mname">YandexGPT (Яндекс)</span><span class="mdesc">российская. Пишет тексты, доступна через отдельный чат и Алису. Преимущество: хорошо понимает русский язык и встроена в привычные сервисы Яндекса.</span></div>
+        <div class="mitem"><span class="mname">Grok (xAI)</span><span class="mdesc">модель от Илона Маска. Пишет тексты, генерирует картинки, отвечает в неформальном стиле. Преимущество: свежие данные и живой, местами дерзкий тон ответов.</span></div>
+        <div class="mitem"><span class="mname">Qwen (Alibaba)</span><span class="mdesc">китайская модель, сильна в тексте, коде и мультимодальности (понимает текст, картинки, видео). Преимущество: мощная и при этом бесплатная в базовой версии.</span></div>
+        <div class="mitem"><span class="mname">Llama (Meta)</span><span class="mdesc">открытая модель от Meta (компания Facebook и Instagram). Можно запускать локально на своём компьютере или использовать через облачные сервисы. Преимущество: открытая и бесплатная, встроена в Meta AI (WhatsApp, Instagram).</span></div>
+        <div class="mitem"><span class="mname">Mistral</span><span class="mdesc">европейская модель (Франция). Быстрая и лёгкая, есть открытые версии. Преимущество: хорошая скорость при достойном качестве.</span></div>
+        <div class="mitem"><span class="mname">Copilot (Microsoft)</span><span class="mdesc">ассистент Microsoft: есть отдельное приложение и встроен в Windows и Office. Пишет тексты, помогает в Word/Excel/PowerPoint, генерирует картинки, пишет код. Преимущество: помощь прямо внутри привычных программ Microsoft.</span></div>
+        <div class="mitem"><span class="mname">Perplexity</span><span class="mdesc">«поисковик с ИИ». Отвечает на вопросы со ссылками на источники. Преимущество: всегда показывает, откуда взял информацию — удобно проверять факты.</span></div>
+      </div>
+      <p><a class="goto" href="текстовые.html">Подробнее о каждой текстовой модели →</a></p>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">03</span>
+      <h3>Нейросети для картинок</h3>
+      <p>Создают изображение по текстовому описанию — от реалистичных фото до иллюстраций и стилизованных артов.</p>
+      <div class="mlist">
+        <div class="mitem"><span class="mname">Midjourney</span><span class="mdesc">один из лучших по качеству и художественности. Генерирует детализированные, «дорогие» изображения — от фотореализма до стилизованных артов. Преимущество: эстетика и стиль, которые сложно получить у других. Минус: платный, нужен доступ через зарубежные каналы.</span></div>
+        <div class="mitem"><span class="mname">DALL·E (OpenAI)</span><span class="mdesc">встроен прямо в ChatGPT — не нужен отдельный сервис, пишешь описание в чате и получаешь картинку. Умеет реалистичные фото, иллюстрации, дорабатывать изображения по уточнениям. Преимущество: удобство — картинки там же, где и текст.</span></div>
+        <div class="mitem"><span class="mname">FLUX</span><span class="mdesc">современная модель с высоким качеством. Генерирует реалистичные и стилизованные изображения, точно следует описанию. Преимущество: качество и точность следования тексту.</span></div>
+        <div class="mitem"><span class="mname">Ideogram</span><span class="mdesc">сильна в тексте на изображениях: логотипы, надписи, постеры с текстом без ошибок. Преимущество: умеет корректно вписывать слова прямо в картинку.</span></div>
+        <div class="mitem"><span class="mname">Leonardo</span><span class="mdesc">платформа с большим выбором стилей и настроек. Преимущество: много готовых стилей для игр, арта и дизайна.</span></div>
+        <div class="mitem"><span class="mname">Recraft</span><span class="mdesc">удобна для дизайна и векторной графики. Преимущество: создаёт векторные изображения (логотипы, иконки), а не только фото.</span></div>
+        <div class="mitem"><span class="mname">Firefly (Adobe)</span><span class="mdesc">встроена в Photoshop и другие продукты Adobe. Преимущество: генерация прямо внутри привычных инструментов дизайнера.</span></div>
+        <div class="mitem"><span class="mname">Kandinsky</span><span class="mdesc">российская модель генерации изображений. Преимущество: доступна из России без VPN.</span></div>
+        <div class="mitem"><span class="mname">Шедеврум (Яндекс)</span><span class="mdesc">российская, простая, генерирует картинки и видео. Преимущество: работает с телефона, простой интерфейс.</span></div>
+        <div class="mitem"><span class="mname">Nanobanana Pro</span><span class="mdesc">новая модель, которую хвалят за точность в деталях и текст на изображениях. Преимущество: быстро и качественно делает картинки, включая надписи на них.</span></div>
+        <div class="mitem"><span class="mname">Google Imagen</span><span class="mdesc">генератор изображений от Google, встроен в Gemini. Преимущество: реалистичные фото и точное следование описанию.</span></div>
+        <div class="mitem"><span class="mname">Grok (изображения)</span><span class="mdesc">генерация картинок внутри Grok (xAI). Преимущество: доступна прямо в чате Grok.</span></div>
+        <div class="mitem"><span class="mname">Playground</span><span class="mdesc">платформа для генерации и редактирования изображений. Преимущество: удобный редактор и много стилей.</span></div>
+        <div class="mitem"><span class="mname">Bing Image Creator</span><span class="mdesc">генератор от Microsoft на базе DALL·E. Преимущество: бесплатный через аккаунт Microsoft.</span></div>
+      </div>
+      <p>Полное описание каждой — <a class="goto" data-goto="4">в модуле 4 →</a></p>
+    </div>
+
+    <div class="block reveal dark">
+      <span class="block-num">04</span>
+      <h3>Нейросети для видео</h3>
+      <p>Создают ролик по тексту или картинке. Эта область развивается быстрее всего.</p>
+      <div class="mlist">
+        
+        <div class="mitem"><span class="mname">Veo (Google)</span><span class="mdesc">видеогенератор Google. Делает ролики по тексту и картинке, хорошо держит движение. Преимущество: интеграция с экосистемой Google.</span></div>
+        <div class="mitem"><span class="mname">Kling</span><span class="mdesc">сильная модель видео по описанию, популярна за качество и стабильность. Преимущество: детализированные движения и сцены.</span></div>
+        <div class="mitem"><span class="mname">Runway</span><span class="mdesc">платформа с большим набором инструментов для видео и монтажа. Преимущество: не только генерация, но и обработка готовых роликов.</span></div>
+        <div class="mitem"><span class="mname">Pika</span><span class="mdesc">удобна для коротких креативных роликов. Преимущество: простота и быстрые эффекты.</span></div>
+        <div class="mitem"><span class="mname">Luma Dream Machine</span><span class="mdesc">быстрая генерация видео. Преимущество: скорость и простота запуска.</span></div>
+        <div class="mitem"><span class="mname">Seedance</span><span class="mdesc">мощный генератор видео. Преимущество: высокое качество длинных роликов.</span></div>
+        <div class="mitem"><span class="mname">Hailuo</span><span class="mdesc">популярный видеосервис. Преимущество: хорошее качество при простоте.</span></div>
+        <div class="mitem"><span class="mname">Vidu</span><span class="mdesc">китайский видеогенератор. Преимущество: быстрые и качественные ролики.</span></div>
+        <div class="mitem"><span class="mname">PixVerse</span><span class="mdesc">удобна для анимации картинок. Преимущество: «оживляет» статичные изображения.</span></div>
+        <div class="mitem"><span class="mname">Minimax</span><span class="mdesc">генерирует и видео, и голос. Преимущество: можно сделать ролик сразу с озвучкой.</span></div>
+        <div class="mitem"><span class="mname">Spark</span><span class="mdesc">генератор коротких роликов с эффектами. Преимущество: быстрые креативные клипы.</span></div>
+        <div class="mitem"><span class="mname">Legend</span><span class="mdesc">платформа для создания видео, ориентирована на креаторов и монетизацию.</span></div>
+        <div class="mitem"><span class="mname">LENZ AI</span><span class="mdesc">приложение для генерации видео и изображений с телефона.</span></div>
+      </div>
+      <p>Полное описание каждой — <a class="goto" data-goto="5">в модуле 5 →</a></p>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">05</span>
+      <h3>Нейросети для звука и музыки</h3>
+      <p>Генерируют музыку, озвучивают текст голосом, переводят речь.</p>
+      <div class="mlist">
+        <div class="mitem"><span class="mname">Suno</span><span class="mdesc">создаёт полноценные песни по описанию: музыка + вокал. Преимущество: можно получить готовый трек, просто описав жанр и тему.</span></div>
+        <div class="mitem"><span class="mname">Udio</span><span class="mdesc">генератор музыки, качество и разнообразие жанров. Преимущество: хорошие голоса и мелодии.</span></div>
+        <div class="mitem"><span class="mname">ElevenLabs</span><span class="mdesc">озвучивает текст реалистичным голосом, клонирует голос. Преимущество: очень естественная озвучка для видео, подкастов, рекламы.</span></div>
+        <div class="mitem"><span class="mname">Minimax</span><span class="mdesc">генерирует голос и видео. Преимущество: можно сделать ролик сразу с озвучкой.</span></div>
+        <div class="mitem"><span class="mname">Mureka</span><span class="mdesc">новый генератор музыки. Преимущество: качественные треки с вокалом.</span></div>
+        <div class="mitem"><span class="mname">Bria</span><span class="mdesc">генератор музыки и звука. Преимущество: разнообразие жанров и стилей.</span></div>
+      </div>
+      <p>Полное описание каждой — <a class="goto" data-goto="6">в модуле 6 →</a></p>
+    </div>
+
+    <div class="block reveal dark">
+      <span class="block-num">06</span>
+      <h3>Универсальные платформы (комбайны)</h3>
+      <p>Платформы, где в одном месте собрано сразу несколько возможностей: текст, картинки, видео и инструменты.</p>
+      <div class="mlist">
+        <div class="mitem"><span class="mname">Google AI Studio</span><span class="mdesc">среда Google для работы с моделями Gemini: текст, картинки, видео в одном месте.</span></div>
+        <div class="mitem"><span class="mname">Higgsfield</span><span class="mdesc">платформа для создания видео и изображений, ориентирована на соцсети и креатив.</span></div>
+      </div>
+      <p>Полное описание — <a class="goto" data-goto="7">в модуле 7 →</a></p>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">07</span>
+      <h3>Агрегаторы</h3>
+      <p>Площадки, где собраны нейросети разных компаний в одном месте, как «интернет-магазин моделей».</p>
+      <div class="mlist">
+        <div class="mitem"><span class="mname">Replicate</span><span class="mdesc">маркетплейс моделей: картинки, видео, текст — запускаешь по ключу.</span></div>
+        <div class="mitem"><span class="mname">Poe</span><span class="mdesc">приложение с десятками разных ботов в одной подписке.</span></div>
+        <div class="mitem"><span class="mname">Hugging Face</span><span class="mdesc">крупнейшая площадка открытых моделей.</span></div>
+        <div class="mitem"><span class="mname">OpenRouter</span><span class="mdesc">единый доступ к сотням моделей по одному ключу.</span></div>
+      </div>
+      <p>Полное описание — <a class="goto" data-goto="8">в модуле 8 →</a></p>
+    </div>
+
+    <div class="block reveal dark">
+      <span class="block-num">08</span>
+      <h3>Платформы для создания агентов</h3>
+      <p>Здесь можно собрать своего ИИ-помощника, который сам выполняет задачи по твоей команде.</p>
+      <div class="mlist">
+        <div class="mitem"><span class="mname">Manus</span><span class="mdesc">автономный агент, который сам выполняет многошаговые задачи.</span></div>
+        <div class="mitem"><span class="mname">Coze</span><span class="mdesc">конструктор агентов без кода, можно привязать к Telegram.</span></div>
+        <div class="mitem"><span class="mname">Dify</span><span class="mdesc">платформа для создания агентов и приложений с ИИ.</span></div>
+        <div class="mitem"><span class="mname">n8n</span><span class="mdesc">автоматизация процессов с подключением ИИ-моделей.</span></div>
+        <div class="mitem"><span class="mname">AutoGPT</span><span class="mdesc">агент, который сам разбивает задачу на шаги и выполняет.</span></div>
+        <div class="mitem"><span class="mname">CrewAI</span><span class="mdesc">платформа для команды из нескольких агентов.</span></div>
+      </div>
+    </div>
+
+    <div class="block reveal">
+      <span class="block-num">09</span>
+      <h3>Готовые среды, где агенты живут</h3>
+      <p>Это платформы-оболочки, куда можно подключить разные модели и где работают агенты с навыками и инструментами.</p>
+      <div class="mlist">
+        <div class="mitem"><span class="mname">DeepSeek Harness</span><span class="mdesc">среда, где живут агенты-помощники с навыками и доступом к инструментам.</span></div>
+        <div class="mitem"><span class="mname">Hermes</span><span class="mdesc">платформа-оболочка для персональных агентов с памятью и автоматизацией.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-lesson">
+      <div class="foot-title" id="footTitle">Что такое нейросеть</div>
+      <div class="lesson-nav">
+        <a class="lnav disabled" id="prevLesson">← Назад</a>
+        <div class="lnav-progress" id="footProgress">Модуль 1</div>
+        <a class="lnav disabled" id="nextLesson">Вперёд →</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  document.querySelector('.burger').addEventListener('click',()=>{
+    document.querySelector('.nav-links').classList.toggle('show');
+  });
+
+  const mods=document.querySelectorAll('.mod');
+  const sections=document.querySelectorAll('section[data-module]');
+  const moduleMeta={
+    '1':{title:'Что такое нейросеть'},
+    '2':{title:'Какие бывают нейросети'},
+    '3':{title:'Текстовые модели'},
+    '4':{title:'Генераторы картинок'},
+    '5':{title:'Генераторы видео'},
+    '6':{title:'Генераторы звука'},
+    '7':{title:'Универсальные платформы'},
+    '8':{title:'Агрегаторы'}
+  };
+  function showModule(n){
+    mods.forEach(m=>m.classList.toggle('active', m.dataset.module===String(n)));
+    sections.forEach(s=>{ s.style.display = (s.dataset.module===String(n)) ? '' : 'none'; });
+    const meta=moduleMeta[String(n)];
+    if(meta){
+      document.getElementById('footTitle').textContent=meta.title;
+      document.getElementById('footProgress').textContent='Модуль '+n;
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  mods.forEach(m=>m.addEventListener('click',()=>{
+    showModule(m.dataset.module);
+  }));
+  document.querySelectorAll('.goto').forEach(g=>g.addEventListener('click',()=>{
+    showModule(g.dataset.goto);
+  }));
+  showModule(1);
+</script>
+</body>
+</html>

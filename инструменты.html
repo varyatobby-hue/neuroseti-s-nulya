@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Инструменты · Нейросети с нуля</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F1E9; --bg-2:#ECEADF; --card:#FDFCF8; --ink:#2E3028; --muted:#7D7E6E;
+    --accent:#8B8A6C; --accent-deep:#6E6D52; --wood:#5A5C43; --sand:#E6E5D2; --cream:#F6F3E6;
+    --line:rgba(110,109,82,.16); --shadow:0 10px 34px rgba(90,85,40,.10);
+    --font-s:'Playfair Display',Georgia,serif; --font-b:'Inter',system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font-b);background:var(--bg);color:var(--ink);line-height:1.68;-webkit-font-smoothing:antialiased}
+  ::selection{background:#d7d8bc;color:#3a3c2c}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(244,241,233,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px;gap:16px}
+  .logo{font-family:var(--font-s);font-weight:600;font-size:1.1rem;display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none}
+  .logo .mark{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--accent),var(--accent-deep));display:inline-block}
+  .topnav{display:flex;gap:8px;flex-wrap:wrap}
+  .topnav a{display:inline-flex;align-items:center;gap:9px;padding:9px 18px;border-radius:999px;font-size:.88rem;font-weight:600;text-decoration:none;white-space:nowrap;border:1px solid transparent;transition:background .22s,color .22s,transform .22s,border-color .22s,box-shadow .22s}
+  .topnav a::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;opacity:.9;flex:0 0 auto}
+  .topnav a.nav-course{color:#556438;background:rgba(110,127,78,.13);border-color:rgba(110,127,78,.28)}
+  .topnav a.nav-cards{color:#8A5F24;background:rgba(196,154,85,.16);border-color:rgba(196,154,85,.34)}
+  .topnav a.nav-works{color:#3F5B68;background:rgba(94,124,138,.13);border-color:rgba(94,124,138,.28)}
+  .topnav a.nav-course:hover{background:rgba(110,127,78,.22);transform:translateY(-1px)}
+  .topnav a.nav-cards:hover{background:rgba(196,154,85,.26);transform:translateY(-1px)}
+  .topnav a.nav-works:hover{background:rgba(94,124,138,.22);transform:translateY(-1px)}
+  .topnav a.on{color:#fff;border-color:transparent}
+  .topnav a.nav-course.on{background:linear-gradient(135deg,#7A8C57,#556438);box-shadow:0 6px 16px rgba(85,100,56,.32)}
+  .topnav a.nav-cards.on{background:linear-gradient(135deg,#CBA463,#96682F);box-shadow:0 6px 16px rgba(150,104,47,.32)}
+  .topnav a.nav-works.on{background:linear-gradient(135deg,#6B8A99,#45606D);box-shadow:0 6px 16px rgba(69,96,109,.32)}
+  .catbar{position:sticky;top:66px;z-index:40;background:rgba(244,241,233,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+  .catbar::-webkit-scrollbar{display:none}
+  .catbar-row{display:flex;gap:8px;padding:10px 0;min-width:max-content}
+  .catbar a{padding:8px 15px;border-radius:999px;font-size:.83rem;font-weight:600;color:var(--muted);text-decoration:none;border:1px solid var(--line);white-space:nowrap;transition:color .2s,border-color .2s,background .2s}
+  .catbar a:hover{color:var(--ink);border-color:var(--accent)}
+  .catbar a.on{background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;border-color:transparent}
+
+  .level-head{background:linear-gradient(150deg,var(--accent-deep),var(--wood));color:#fff;border-radius:26px;padding:30px 32px;margin:40px 0 24px;box-shadow:var(--shadow)}
+  .level-head .lv{font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:10px;display:block}
+  .level-head h1{font-family:var(--font-s);font-weight:500;font-size:1.95rem;margin-bottom:10px}
+  .level-head p{color:rgba(255,255,255,.9);font-size:.97rem;max-width:74ch}
+
+  .module{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow);scroll-margin-top:132px}
+  .module-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+  .mnum{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:42px;padding:0 10px;border-radius:13px;background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;font-family:var(--font-s);font-weight:600;font-size:1.02rem;flex:0 0 auto}
+  .module h3{font-family:var(--font-s);font-weight:500;font-size:1.25rem;line-height:1.25;flex:1 1 auto}
+  .mcount{font-size:.8rem;font-weight:600;color:var(--accent-deep);background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:5px 12px;white-space:nowrap}
+  .cards-sub{margin-top:14px;font-size:.92rem;color:var(--muted);font-weight:600}
+  .cards{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .card-chip{display:inline-flex;align-items:center;gap:7px;background:var(--cream);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:.86rem;font-weight:500;color:#4b4e3d;text-decoration:none;transition:border-color .2s,color .2s}
+  a.card-chip:hover{border-color:var(--accent);color:var(--accent-deep)}
+  .more{display:inline-flex;align-items:center;padding:6px 14px;border-radius:999px;font-size:.82rem;font-weight:600;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-deep));text-decoration:none;white-space:nowrap;margin-left:auto}
+  .more:hover{opacity:.88}
+
+  footer{padding:40px 0 64px;text-align:center;border-top:1px solid var(--line);margin-top:34px}
+  .back-course{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;font-size:.92rem;font-weight:600;color:var(--ink);text-decoration:none;border:1.4px solid var(--line);transition:border-color .25s,transform .25s}
+  .back-course:hover{border-color:var(--accent);transform:translateY(-2px)}
+  @media(max-width:640px){.level-head{padding:22px}.module{padding:20px}.nav{height:60px}.catbar{top:60px}.module{scroll-margin-top:122px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="СОДЕРЖАНИЕ КУРСА.html"><span class="mark"></span>Нейросети · с нуля</a>
+    <nav class="topnav">
+      <a class="nav-course" href="СОДЕРЖАНИЕ КУРСА.html">Курс</a>
+      <a class="nav-cards on" href="инструменты.html">Инструменты</a>
+    </nav>
+  </div>
+</header>
+
+<nav class="catbar" aria-label="Категории карточек">
+  <div class="wrap catbar-row">
+    <a href="#p-text" class="on">Текстовые</a>
+    <a href="#p-image">Картинки</a>
+    <a href="#p-video">Видео</a>
+    <a href="#p-sound">Звук</a>
+    <a href="#p-aggr">Агрегаторы</a>
+    <a href="#p-agents">Агенты</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="level-head">
+    <h1>Инструменты</h1>
+    <p>Здесь собраны платформы, в которых работают нейросети: текстовые, для картинок, видео и звука, плюс агрегаторы и агенты. На каждую — короткая карточка: что это, для чего лучше всего, чем отличается от похожих, сколько стоит и открывается ли из России. Нажми на название — карточка откроется сразу, без перехода по страницам. А если не знаешь, с чего начать, загляни в урок «Навигатор выбора» в курсе: там по задачам подсказано, что взять.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="module" id="p-text">
+    <div class="module-head"><span class="mnum">Т</span><h3>Текстовые модели</h3><a class="more" href="инструменты-текстовые.html">Подробнее →</a></div>
+    <div class="cards-sub">США и Европа</div>
+    <div class="cards"><a class="card-chip" href="инструменты-текстовые.html#chatgpt">ChatGPT</a><a class="card-chip" href="инструменты-текстовые.html#claude">Claude</a><a class="card-chip" href="инструменты-текстовые.html#gemini">Gemini</a><a class="card-chip" href="инструменты-текстовые.html#copilot">Copilot</a><a class="card-chip" href="инструменты-текстовые.html#grok">Grok</a><a class="card-chip" href="инструменты-текстовые.html#perplexity">Perplexity</a><a class="card-chip" href="инструменты-текстовые.html#llama">Llama (Meta)</a><a class="card-chip" href="инструменты-текстовые.html#mistral">Mistral / Le Chat</a></div>
+    <div class="cards-sub">Китай</div>
+    <div class="cards"><a class="card-chip" href="инструменты-текстовые.html#deepseek">DeepSeek</a><a class="card-chip" href="инструменты-текстовые.html#kimi">Kimi</a><a class="card-chip" href="инструменты-текстовые.html#qwen">Qwen</a><a class="card-chip" href="инструменты-текстовые.html#doubao">Doubao (ByteDance)</a><a class="card-chip" href="инструменты-текстовые.html#glm">GLM / ChatGLM (Zhipu)</a><a class="card-chip" href="инструменты-текстовые.html#ernie">Ernie (Baidu)</a><a class="card-chip" href="инструменты-текстовые.html#hunyuan">Hunyuan (Tencent)</a></div>
+    <div class="cards-sub">Россия</div>
+    <div class="cards"><a class="card-chip" href="инструменты-текстовые.html#yandexgpt">YandexGPT / Алиса</a><a class="card-chip" href="инструменты-текстовые.html#gigachat">GigaChat (Сбер)</a><a class="card-chip" href="инструменты-текстовые.html#cotype">Cotype (MTS AI)</a></div>
+  </div>
+
+  <div class="module" id="p-image">
+    <div class="module-head"><span class="mnum">К</span><h3>Картинки и дизайн</h3><a class="more" href="инструменты-картинки.html">Подробнее →</a></div>
+    <div class="cards-sub">США и Европа</div>
+    <div class="cards"><a class="card-chip" href="инструменты-картинки.html#midjourney">Midjourney</a><a class="card-chip" href="инструменты-картинки.html#dalle">DALL·E</a><a class="card-chip" href="инструменты-картинки.html#flux">FLUX</a><a class="card-chip" href="инструменты-картинки.html#ideogram">Ideogram</a><a class="card-chip" href="инструменты-картинки.html#recraft">Recraft</a><a class="card-chip" href="инструменты-картинки.html#leonardo">Leonardo</a><a class="card-chip" href="инструменты-картинки.html#firefly">Adobe Firefly</a><a class="card-chip" href="инструменты-картинки.html#nanobanana">Nanobanana (Gemini)</a><a class="card-chip" href="инструменты-картинки.html#imagen">Imagen (Google)</a><a class="card-chip" href="инструменты-картинки.html#krea">Krea</a><a class="card-chip" href="инструменты-картинки.html#playground">Playground</a><a class="card-chip" href="инструменты-картинки.html#canva">Canva AI</a><a class="card-chip" href="инструменты-картинки.html#freepik">Freepik AI</a><a class="card-chip" href="инструменты-картинки.html#bing-image">Bing Image Creator</a></div>
+    <div class="cards-sub">Китай</div>
+    <div class="cards"><a class="card-chip" href="инструменты-картинки.html#seedream">Seedream (ByteDance)</a><a class="card-chip" href="инструменты-картинки.html#qwen-image">Qwen-Image</a><a class="card-chip" href="инструменты-картинки.html#hunyuan-image">Hunyuan Image</a><a class="card-chip" href="инструменты-картинки.html#kolors">Kolors (Kuaishou)</a></div>
+    <div class="cards-sub">Россия</div>
+    <div class="cards"><a class="card-chip" href="инструменты-картинки.html#kandinsky">Kandinsky (Сбер)</a><a class="card-chip" href="инструменты-картинки.html#shedevrum">Шедеврум (Яндекс)</a><a class="card-chip" href="инструменты-картинки.html#gigachat-image">GigaChat (картинки)</a></div>
+  </div>
+
+  <div class="module" id="p-video">
+    <div class="module-head"><span class="mnum">В</span><h3>Видео, аватары, монтаж</h3><a class="more" href="инструменты-видео.html">Подробнее →</a></div>
+    <div class="cards-sub">США и Европа</div>
+    <div class="cards"><a class="card-chip" href="инструменты-видео.html#veo">Veo (Google)</a><a class="card-chip" href="инструменты-видео.html#runway">Runway</a><a class="card-chip" href="инструменты-видео.html#pika">Pika</a><a class="card-chip" href="инструменты-видео.html#luma">Luma Dream Machine</a><a class="card-chip" href="инструменты-видео.html#ltx">LTX Studio</a><a class="card-chip" href="инструменты-видео.html#heygen">HeyGen</a><a class="card-chip" href="инструменты-видео.html#synthesia">Synthesia</a><a class="card-chip" href="инструменты-видео.html#did">D-ID</a><a class="card-chip" href="инструменты-видео.html#higgsfield">Higgsfield</a><a class="card-chip" href="инструменты-видео.html#vozo">Vozo</a></div>
+    <div class="cards-sub">Китай</div>
+    <div class="cards"><a class="card-chip" href="инструменты-видео.html#kling">Kling</a><a class="card-chip" href="инструменты-видео.html#hailuo">Hailuo / MiniMax</a><a class="card-chip" href="инструменты-видео.html#seedance">Seedance (ByteDance)</a><a class="card-chip" href="инструменты-видео.html#wan">Wan (Alibaba)</a><a class="card-chip" href="инструменты-видео.html#vidu">Vidu</a><a class="card-chip" href="инструменты-видео.html#hunyuan-video">Hunyuan Video</a><a class="card-chip" href="инструменты-видео.html#pixverse">PixVerse</a></div>
+    <div class="cards-sub">Монтаж и обработка</div>
+    <div class="cards"><a class="card-chip" href="инструменты-видео.html#capcut">CapCut / Dreamina</a><a class="card-chip" href="инструменты-видео.html#davinci">DaVinci Resolve</a><a class="card-chip" href="инструменты-видео.html#descript">Descript</a><a class="card-chip" href="инструменты-видео.html#opusclip">Opus Clip</a><a class="card-chip" href="инструменты-видео.html#invideo">InVideo</a><a class="card-chip" href="инструменты-видео.html#pictory">Pictory</a></div>
+  </div>
+
+  <div class="module" id="p-sound">
+    <div class="module-head"><span class="mnum">З</span><h3>Звук и музыка</h3><a class="more" href="инструменты-звук.html">Подробнее →</a></div>
+    <div class="cards"><a class="card-chip" href="инструменты-звук.html#suno">Suno</a><a class="card-chip" href="инструменты-звук.html#udio">Udio</a><a class="card-chip" href="инструменты-звук.html#elevenlabs">ElevenLabs</a><a class="card-chip" href="инструменты-звук.html#mureka">Mureka</a><a class="card-chip" href="инструменты-звук.html#bria">Bria</a><a class="card-chip" href="инструменты-звук.html#fishaudio">Fish Audio</a><a class="card-chip" href="инструменты-звук.html#playht">PlayHT</a><a class="card-chip" href="инструменты-звук.html#riffusion">Riffusion</a><a class="card-chip" href="инструменты-звук.html#adobe-podcast">Adobe Podcast</a><a class="card-chip" href="инструменты-звук.html#salutespeech">SaluteSpeech (Сбер)</a><a class="card-chip" href="инструменты-звук.html#yandex-speechkit">Yandex SpeechKit</a><a class="card-chip" href="инструменты-звук.html#minimax-audio">Minimax Audio</a></div>
+  </div>
+
+  <div class="module" id="p-aggr">
+    <div class="module-head"><span class="mnum">С</span><h3>Агрегаторы и студии</h3><a class="more" href="инструменты-агрегаторы.html">Подробнее →</a></div>
+    <div class="cards"><a class="card-chip" href="инструменты-агрегаторы.html#replicate">Replicate</a><a class="card-chip" href="инструменты-агрегаторы.html#openrouter">OpenRouter</a><a class="card-chip" href="инструменты-агрегаторы.html#poe">Poe</a><a class="card-chip" href="инструменты-агрегаторы.html#huggingface">Hugging Face</a><a class="card-chip" href="инструменты-агрегаторы.html#google-ai-studio">Google AI Studio</a><a class="card-chip" href="инструменты-агрегаторы.html#together">Together AI</a><a class="card-chip" href="инструменты-агрегаторы.html#fireworks">Fireworks AI</a><a class="card-chip" href="инструменты-агрегаторы.html#fal">fal.ai</a><a class="card-chip" href="инструменты-агрегаторы.html#wavespeed">WaveSpeed</a><a class="card-chip" href="инструменты-агрегаторы.html#kie">Kie.ai</a><a class="card-chip" href="инструменты-агрегаторы.html#runware">Runware</a><a class="card-chip" href="инструменты-агрегаторы.html#cometapi">CometAPI</a></div>
+  </div>
+
+  <div class="module" id="p-agents">
+    <div class="module-head"><span class="mnum">А</span><h3>Агенты и автоматизация</h3><a class="more" href="инструменты-агенты.html">Подробнее →</a></div>
+    <div class="cards"><a class="card-chip" href="инструменты-агенты.html#deepseek-harness">DeepSeek Harness</a><a class="card-chip" href="инструменты-агенты.html#hermes">Hermes</a><a class="card-chip" href="инструменты-агенты.html#coze">Coze</a><a class="card-chip" href="инструменты-агенты.html#dify">Dify</a><a class="card-chip" href="инструменты-агенты.html#n8n">n8n</a><a class="card-chip" href="инструменты-агенты.html#make">Make.com</a><a class="card-chip" href="инструменты-агенты.html#zapier">Zapier</a><a class="card-chip" href="инструменты-агенты.html#manus">Manus</a><a class="card-chip" href="инструменты-агенты.html#autogpt">AutoGPT</a><a class="card-chip" href="инструменты-агенты.html#crewai">CrewAI</a><a class="card-chip" href="инструменты-агенты.html#lindy">Lindy</a><a class="card-chip" href="инструменты-агенты.html#relevance-ai">Relevance AI</a><a class="card-chip" href="инструменты-агенты.html#flowise">Flowise</a><a class="card-chip" href="инструменты-агенты.html#langflow">Langflow</a><a class="card-chip" href="инструменты-агенты.html#gpts">GPTs (OpenAI)</a><a class="card-chip" href="инструменты-агенты.html#gems">Gems (Google)</a><a class="card-chip" href="инструменты-агенты.html#claude-projects">Claude Projects / Skills</a><a class="card-chip" href="инструменты-агенты.html#gigachat-agents">GigaChat агенты</a></div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <a class="back-course" href="СОДЕРЖАНИЕ КУРСА.html">← Вернуться к курсу</a>
+  </div>
+</footer>
+
+<script>
+  // подсветка активной категории при прокрутке
+  const cats = [...document.querySelectorAll('.catbar a')];
+  const mods = cats.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const setOn = (el) => { cats.forEach(a => a.classList.remove('on')); if (el) el.classList.add('on'); };
+  const spy = () => {
+    let cur = mods[0];
+    mods.forEach(m => { if (m.getBoundingClientRect().top <= 140) cur = m; });
+    setOn(cats.find(a => a.getAttribute('href') === '#' + cur.id));
+  };
+  window.addEventListener('scroll', spy, {passive:true});
+  spy();
+</script>
+</body>
+</html>
